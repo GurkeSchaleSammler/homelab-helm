@@ -1,1 +1,6 @@
-email: ""
+email: "rogerischback@outlook.com"
+
+cloudflare:
+  secretName: cloudflare-api-token-secret
+
+dnsZones: []
