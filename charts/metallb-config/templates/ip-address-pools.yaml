@@ -1,0 +1,20 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: public-ingress
+  namespace: metallb-system
+spec:
+  addresses:
+    - {{ .Values.public.address | quote }}
+  autoAssign: false
+
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: internal-ingress
+  namespace: metallb-system
+spec:
+  addresses:
+    - {{ .Values.internal.address | quote }}
+  autoAssign: false
