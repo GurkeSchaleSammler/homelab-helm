@@ -1,0 +1,7 @@
+apiVersion: v2
+name: stoasis
+description: Stoasis web application, API, MCP endpoint and PostgreSQL
+type: application
+version: 0.1.0
+appVersion: "latest"
+

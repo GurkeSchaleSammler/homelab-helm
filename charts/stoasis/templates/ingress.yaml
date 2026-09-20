@@ -1,0 +1,82 @@
+{{- if .Values.ingress.frontend.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "stoasis.fullname" . }}-frontend
+  labels:
+    {{- include "stoasis.labels" . | nindent 4 }}
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.className | quote }}
+spec:
+  ingressClassName: {{ .Values.ingress.className | quote }}
+  tls:
+    - hosts: [{{ .Values.ingress.frontend.host | quote }}]
+      secretName: {{ .Values.ingress.frontend.tlsSecretName }}
+  rules:
+    - host: {{ .Values.ingress.frontend.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "stoasis.fullname" . }}-frontend
+                port:
+                  number: {{ .Values.frontend.service.port }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "stoasis.fullname" . }}-frontend
+  labels:
+    {{- include "stoasis.labels" . | nindent 4 }}
+spec:
+  secretName: {{ .Values.ingress.frontend.tlsSecretName }}
+  dnsNames: [{{ .Values.ingress.frontend.host | quote }}]
+  issuerRef:
+    name: {{ .Values.ingress.clusterIssuer }}
+    kind: ClusterIssuer
+{{- end }}
+{{- if and .Values.ingress.frontend.enabled .Values.ingress.mcp.enabled }}
+---
+{{- end }}
+{{- if .Values.ingress.mcp.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "stoasis.fullname" . }}-mcp
+  labels:
+    {{- include "stoasis.labels" . | nindent 4 }}
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.className | quote }}
+spec:
+  ingressClassName: {{ .Values.ingress.className | quote }}
+  tls:
+    - hosts: [{{ .Values.ingress.mcp.host | quote }}]
+      secretName: {{ .Values.ingress.mcp.tlsSecretName }}
+  rules:
+    - host: {{ .Values.ingress.mcp.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "stoasis.fullname" . }}-mcp
+                port:
+                  number: {{ .Values.mcp.service.port }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "stoasis.fullname" . }}-mcp
+  labels:
+    {{- include "stoasis.labels" . | nindent 4 }}
+spec:
+  secretName: {{ .Values.ingress.mcp.tlsSecretName }}
+  dnsNames: [{{ .Values.ingress.mcp.host | quote }}]
+  issuerRef:
+    name: {{ .Values.ingress.clusterIssuer }}
+    kind: ClusterIssuer
+{{- end }}
+

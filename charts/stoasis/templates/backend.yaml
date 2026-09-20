@@ -1,0 +1,137 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "stoasis.fullname" . }}-uploads
+  labels:
+    {{- include "stoasis.labels" . | nindent 4 }}
+spec:
+  accessModes: ["ReadWriteOnce"]
+  {{- with .Values.uploads.persistence.storageClassName }}
+  storageClassName: {{ . | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.uploads.persistence.size }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "stoasis.fullname" . }}-backend
+  labels:
+    {{- include "stoasis.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  replicas: {{ .Values.backend.replicaCount }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "stoasis.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: backend
+  template:
+    metadata:
+      labels:
+        {{- include "stoasis.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: backend
+    spec:
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      securityContext:
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: backend
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          args: ["prod"]
+          env:
+            - name: PORT
+              value: {{ .Values.backend.service.port | quote }}
+            - name: JAVA_TOOL_OPTIONS
+              value: {{ .Values.backend.javaToolOptions | quote }}
+            - name: PGHOST
+              value: {{ include "stoasis.fullname" . }}-postgresql
+            - name: PGPORT
+              value: {{ .Values.postgresql.service.port | quote }}
+            - name: PGDATABASE
+              value: {{ .Values.postgresql.database | quote }}
+            - name: PGUSER
+              value: {{ .Values.postgresql.username | quote }}
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.existingSecret }}
+                  key: {{ .Values.secrets.keys.postgresPassword }}
+            - name: STOASIS_FRONTEND_URL
+              value: "https://{{ .Values.ingress.frontend.host }}"
+            - name: STOASIS_PUBLIC_API_URL
+              value: "https://{{ .Values.ingress.frontend.host }}"
+            - name: STOASIS_CORS_ALLOWED_ORIGINS
+              value: "https://{{ .Values.ingress.frontend.host }}"
+            - name: STOASIS_MCP_PUBLIC_URL
+              value: "https://{{ .Values.ingress.mcp.host }}/mcp"
+            - name: STOASIS_UPLOAD_DIRECTORY
+              value: /data/uploads
+            - name: STOASIS_SKILLS_ENABLED
+              value: {{ .Values.backend.skillsEnabled | quote }}
+            - name: STOASIS_MAIL_PROVIDER
+              value: {{ .Values.mail.provider | quote }}
+            - name: STOASIS_MAIL_FROM
+              value: {{ .Values.mail.from | quote }}
+            - name: RESEND_API_URL
+              value: {{ .Values.mail.resendApiUrl | quote }}
+            {{- if eq .Values.mail.provider "resend" }}
+            - name: RESEND_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.existingSecret }}
+                  key: {{ .Values.secrets.keys.resendApiKey }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.backend.service.port }}
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          volumeMounts:
+            - name: uploads
+              mountPath: /data/uploads
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: {{ include "stoasis.fullname" . }}-uploads
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "stoasis.fullname" . }}-backend
+  labels:
+    {{- include "stoasis.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  selector:
+    {{- include "stoasis.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+  ports:
+    - name: http
+      port: {{ .Values.backend.service.port }}
+      targetPort: http
+

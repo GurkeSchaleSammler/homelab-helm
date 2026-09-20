@@ -1,0 +1,13 @@
+Stoasis requires two existing Secrets in namespace {{ .Release.Namespace }}:
+
+1. {{ .Values.secrets.existingSecret }} with keys:
+   - {{ .Values.secrets.keys.postgresPassword }}
+   - {{ .Values.secrets.keys.databaseUrl }}
+   - {{ .Values.secrets.keys.sessionEncryptionKey }}
+   - {{ .Values.secrets.keys.resendApiKey }}
+
+2. Registry pull secret {{ (index .Values.imagePullSecrets 0).name }} for the private GHCR images.
+
+Web: https://{{ .Values.ingress.frontend.host }}
+MCP: https://{{ .Values.ingress.mcp.host }}/mcp
+
