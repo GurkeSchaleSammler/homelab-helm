@@ -5,7 +5,12 @@ metadata:
   namespace: metallb-system
 spec:
   addresses:
+    {{- if .Values.public.address }}
     - {{ .Values.public.address | quote }}
+    {{- end }}
+    {{- if .Values.public.ipv6Address }}
+    - {{ .Values.public.ipv6Address | quote }}
+    {{- end }}
   autoAssign: false
 
 ---
@@ -16,5 +21,10 @@ metadata:
   namespace: metallb-system
 spec:
   addresses:
+    {{- if .Values.internal.address }}
     - {{ .Values.internal.address | quote }}
+    {{- end }}
+    {{- if .Values.internal.ipv6Address }}
+    - {{ .Values.internal.ipv6Address | quote }}
+    {{- end }}
   autoAssign: false
