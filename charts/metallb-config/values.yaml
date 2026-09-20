@@ -1,5 +1,7 @@
 public:
   address: ""
+  ipv6Address: ""
 
 internal:
   address: ""
+  ipv6Address: ""
