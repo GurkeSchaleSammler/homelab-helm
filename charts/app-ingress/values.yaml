@@ -1,0 +1,11 @@
+# Enable in the application's namespace after its Service exists.
+enabled: false
+host: ""
+className: ""
+annotations: {}
+service:
+  name: ""
+  port: 80
+tls:
+  enabled: false
+  secretName: ""

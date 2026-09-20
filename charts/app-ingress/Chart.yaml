@@ -1,0 +1,5 @@
+apiVersion: v2
+name: app-ingress
+description: An explicitly classified Ingress for an existing application Service
+type: application
+version: 0.1.0

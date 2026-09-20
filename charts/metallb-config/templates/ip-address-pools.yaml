@@ -1,8 +1,9 @@
+{{- if or .Values.public.address .Values.public.ipv6Address }}
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
   name: public-ingress
-  namespace: metallb-system
+  namespace: {{ .Release.Namespace }}
 spec:
   addresses:
     {{- if .Values.public.address }}
@@ -12,13 +13,15 @@ spec:
     - {{ .Values.public.ipv6Address | quote }}
     {{- end }}
   autoAssign: false
+{{- end }}
 
+{{- if or .Values.internal.address .Values.internal.ipv6Address }}
 ---
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
   name: internal-ingress
-  namespace: metallb-system
+  namespace: {{ .Release.Namespace }}
 spec:
   addresses:
     {{- if .Values.internal.address }}
@@ -28,3 +31,4 @@ spec:
     - {{ .Values.internal.ipv6Address | quote }}
     {{- end }}
   autoAssign: false
+{{- end }}

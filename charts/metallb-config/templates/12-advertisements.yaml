@@ -1,18 +1,22 @@
+{{- if or .Values.public.address .Values.public.ipv6Address }}
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
 metadata:
   name: public-ingress
-  namespace: metallb-system
+  namespace: {{ .Release.Namespace }}
 spec:
   ipAddressPools:
     - public-ingress
+{{- end }}
 
+{{- if or .Values.internal.address .Values.internal.ipv6Address }}
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
 metadata:
   name: internal-ingress
-  namespace: metallb-system
+  namespace: {{ .Release.Namespace }}
 spec:
   ipAddressPools:
     - internal-ingress
+{{- end }}
