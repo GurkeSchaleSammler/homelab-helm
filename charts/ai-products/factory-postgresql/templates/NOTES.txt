@@ -1,0 +1,8 @@
+PostgreSQL service:
+  {{ include "factory-postgresql.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}
+
+Database:
+  {{ .Values.database.name }}
+
+Required existing Secret:
+  {{ .Values.existingSecret }}

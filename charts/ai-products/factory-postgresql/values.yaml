@@ -1,0 +1,41 @@
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: postgres
+  tag: 17-alpine
+  pullPolicy: IfNotPresent
+
+database:
+  name: ai_product_factory
+  superuser: postgres
+
+existingSecret: factory-postgresql-secrets
+secretKeys:
+  postgresPassword: postgres-password
+  migratorPassword: migration-password
+  innovationPassword: innovation-password
+  salesPassword: sales-password
+  managerPassword: manager-password
+
+service:
+  port: 5432
+
+persistence:
+  size: 10Gi
+  storageClassName: local-path
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+networkPolicy:
+  enabled: true
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

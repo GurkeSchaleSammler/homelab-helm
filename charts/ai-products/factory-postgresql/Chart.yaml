@@ -1,0 +1,6 @@
+apiVersion: v2
+name: factory-postgresql
+description: Dedicated PostgreSQL database for AI Product Factory
+type: application
+version: 0.1.0
+appVersion: "17"

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "factory-postgresql.fullname" . }}
+  labels:
+    {{- include "factory-postgresql.labels" . | nindent 4 }}
+spec:
+  clusterIP: None
+  selector:
+    {{- include "factory-postgresql.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: postgresql
+      port: {{ .Values.service.port }}
+      targetPort: postgresql
