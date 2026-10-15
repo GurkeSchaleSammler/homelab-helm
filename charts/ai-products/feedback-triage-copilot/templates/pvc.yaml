@@ -2,6 +2,8 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
   name: {{ include "feedback-triage.fullname" . }}
   labels:
     {{- include "feedback-triage.labels" . | nindent 4 }}
