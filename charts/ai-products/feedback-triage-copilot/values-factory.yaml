@@ -1,0 +1,7 @@
+image:
+  repository: ghcr.io/sechssiebe67-wq/feedback-triage-copilot
+  digest: sha256:7183a24278e96957ea15cc75933c1abb6dd3533ed0a1c0f980c59eb18bd3a3a4
+ingress:
+  enabled: true
+  className: traefik-public
+  host: feedback-triage-copilot.gurkeschale.ch
