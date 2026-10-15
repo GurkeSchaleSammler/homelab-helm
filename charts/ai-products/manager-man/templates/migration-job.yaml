@@ -16,7 +16,6 @@ spec:
     spec:
       imagePullSecrets:
         {{- toYaml .Values.imagePullSecrets | nindent 8 }}
-      serviceAccountName: {{ include "manager-man.fullname" . }}
       automountServiceAccountToken: false
       restartPolicy: Never
       securityContext:
