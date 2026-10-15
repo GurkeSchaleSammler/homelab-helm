@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/sechssiebe67-wq/feedback-triage-copilot
-  digest: sha256:7183a24278e96957ea15cc75933c1abb6dd3533ed0a1c0f980c59eb18bd3a3a4
+  digest: sha256:2250cf9175bcfd5b8398094528d7267dfe2e7d6854e73f567053cb76a1a845f6
 ingress:
   enabled: true
   className: traefik-public
