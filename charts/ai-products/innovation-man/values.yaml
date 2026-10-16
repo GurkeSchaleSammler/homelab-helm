@@ -5,8 +5,7 @@ image:
 imagePullSecrets:
   - name: ghcr-innovation-man
 
-# Temporary fast mode; restore together with factory_settings.pitch_interval_minutes.
-schedule: "* * * * *"
+schedule: "*/15 * * * *"
 timeZone: Europe/Zurich
 existingSecret: innovation-man-secrets
 secretKeys:
