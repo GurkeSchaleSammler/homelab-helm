@@ -24,7 +24,7 @@ config:
   githubProductOwner: sechssiebe67-wq
   githubPipelineRepository: empty-produkt
   githubPipelineBranch: main
-  githubProductRepositoriesPrivate: true
+  githubProductRepositoriesPrivate: false
   githubOwner: GurkeSchaleSammler
   githubHelmRepository: homelab-helm
   githubGitopsRepository: homelab-gitops
