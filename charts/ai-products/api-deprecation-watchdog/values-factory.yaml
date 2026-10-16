@@ -1,0 +1,9 @@
+image:
+  repository: ghcr.io/sechssiebe67-wq/api-deprecation-watchdog
+  digest: sha256:1dd36c105d898747a9b33d9e35b2284a42c6e3e4753211f1854a1742ee341f73
+imagePullSecrets:
+  - name: ghcr-product-images
+ingress:
+  enabled: true
+  className: traefik-public
+  host: api-deprecation-watchdog.gurkeschale.ch

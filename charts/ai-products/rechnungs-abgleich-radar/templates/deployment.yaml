@@ -1,0 +1,138 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  name: {{ include "radar.fullname" . }}
+  labels:
+    {{- include "radar.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "radar.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "radar.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: radar
+          image: {{ include "radar.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: RADAR_PORT
+              value: "8080"
+            - name: RADAR_HOST
+              value: "0.0.0.0"
+            - name: RADAR_DB_PATH
+              value: /data/radar.db
+            - name: RADAR_TOLERANCE_PCT
+              value: {{ .Values.config.tolerancePct | quote }}
+            - name: RADAR_PRICE_DRIFT_PCT
+              value: {{ .Values.config.priceDriftPct | quote }}
+            - name: RADAR_DUPLICATE_WINDOW_DAYS
+              value: {{ .Values.config.duplicateWindowDays | quote }}
+            - name: RADAR_DEFAULT_ENTITY
+              value: {{ .Values.config.defaultEntity | quote }}
+            - name: RADAR_DEFAULT_COST_CENTER
+              value: {{ .Values.config.defaultCostCenter | quote }}
+            - name: RADAR_REVIEW_MINUTES_PER_FINDING
+              value: {{ .Values.config.reviewMinutesPerFinding | quote }}
+            - name: RADAR_REVIEW_HOURLY_RATE_EUR
+              value: {{ .Values.config.reviewHourlyRateEur | quote }}
+            {{- if .Values.auth.enabled }}
+            - name: RADAR_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "radar.secretName" . }}
+                  key: {{ .Values.auth.tokenKey }}
+            {{- end }}
+            {{- if .Values.digest.webhookUrl }}
+            - name: RADAR_DIGEST_WEBHOOK_URL
+              value: {{ .Values.digest.webhookUrl | quote }}
+            {{- end }}
+            {{- if .Values.digest.schedule }}
+            - name: RADAR_DIGEST_SCHEDULE
+              value: {{ .Values.digest.schedule | quote }}
+            {{- end }}
+            {{- if .Values.digest.smtp.host }}
+            - name: RADAR_DIGEST_SMTP_HOST
+              value: {{ .Values.digest.smtp.host | quote }}
+            - name: RADAR_DIGEST_SMTP_PORT
+              value: {{ .Values.digest.smtp.port | quote }}
+            - name: RADAR_DIGEST_SMTP_USE_TLS
+              value: {{ .Values.digest.smtp.useTls | quote }}
+            {{- end }}
+            {{- if .Values.digest.smtp.user }}
+            - name: RADAR_DIGEST_SMTP_USER
+              value: {{ .Values.digest.smtp.user | quote }}
+            {{- end }}
+            {{- if .Values.digest.smtp.from }}
+            - name: RADAR_DIGEST_SMTP_FROM
+              value: {{ .Values.digest.smtp.from | quote }}
+            {{- end }}
+            {{- if .Values.digest.smtp.to }}
+            - name: RADAR_DIGEST_SMTP_TO
+              value: {{ .Values.digest.smtp.to | quote }}
+            {{- end }}
+            {{- if or .Values.digest.smtp.password .Values.digest.smtp.existingSecret }}
+            - name: RADAR_DIGEST_SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "radar.digestSecretName" . }}
+                  key: {{ .Values.digest.smtp.passwordKey }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "radar.fullname" . }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: tmp
+          emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

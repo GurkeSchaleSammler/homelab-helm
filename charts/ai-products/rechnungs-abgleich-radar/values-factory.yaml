@@ -1,0 +1,9 @@
+image:
+  repository: ghcr.io/sechssiebe67-wq/rechnungs-abgleich-radar
+  digest: sha256:69fa9d08d8e9e57be1aab69d91e1c754f05ba8c87196f62f83a4fc25b5733f23
+imagePullSecrets:
+  - name: ghcr-product-images
+ingress:
+  enabled: true
+  className: traefik-public
+  host: rechnungs-abgleich-radar.gurkeschale.ch

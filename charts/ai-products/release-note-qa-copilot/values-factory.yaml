@@ -1,0 +1,9 @@
+image:
+  repository: ghcr.io/sechssiebe67-wq/release-note-qa-copilot
+  digest: sha256:c17b882d4bb6eb8de0a4cfbc000817cc44aabe20ba8d7c46e12264d13b117b55
+imagePullSecrets:
+  - name: ghcr-product-images
+ingress:
+  enabled: true
+  className: traefik-public
+  host: release-note-qa-copilot.gurkeschale.ch

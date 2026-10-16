@@ -1,0 +1,9 @@
+image:
+  repository: ghcr.io/sechssiebe67-wq/docs-drift-detector
+  digest: sha256:fc2ddfe3879121b2a66fa6f61d4c35e3df56368e0d677f04f9261f9e533ad459
+imagePullSecrets:
+  - name: ghcr-product-images
+ingress:
+  enabled: true
+  className: traefik-public
+  host: docs-drift-detector.gurkeschale.ch
